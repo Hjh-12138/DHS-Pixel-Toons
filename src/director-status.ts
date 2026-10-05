@@ -3,7 +3,7 @@ export const DIRECTOR_FAILURE_TEXT={
   'token-limit':'模型输出达到上限，未能生成完整场景',
   'empty-output':'模型没有返回场景正文',
   'invalid-json':'模型返回的场景 JSON 不完整',
-  'invalid-scene':'场景未通过绘图校验',
+  'invalid-scene':'场景编排未通过素材校验',
   language:'场景说明未使用中文',
   'output-limit':'模型返回的场景内容过长',
   timeout:'动态场景生成超时',

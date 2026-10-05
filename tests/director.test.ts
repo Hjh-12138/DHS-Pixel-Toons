@@ -6,7 +6,7 @@ import {directScene} from '../src/director'
 import {emptyActivity} from '../src/activity'
 import {DirectorError,directorFailure,fallbackCaption} from '../src/director-status'
 import {withDirectorReasoning} from '../src/director-routing'
-const raw={concept:'阅读小剧场',code:'function frame(t,dt){clawd(20,4);say("让我看看这段代码。",27,4);}',actors:[],particles:[],background:{effect:'waves',palette:['#113','#448','#99f'],speed:.4,intensity:.2}}
+const raw={concept:'阅读小剧场',theme:'library',mood:'day',action:'read',props:[{kind:'book',slot:'left'}],effects:['fireflies'],say:'让我看看这段代码。'}
 test('director uses configured routing and keeps its context out of the main conversation',async()=>{
   let request:GenerateOptions|undefined
   async function* stream(o:GenerateOptions):AsyncIterable<StreamChunk>{request=o;yield {type:'text-delta',index:0,text:JSON.stringify(raw)};yield {type:'usage',usage:{inputTokens:40,outputTokens:90}};yield {type:'finish',reason:{kind:'stop'}}}
@@ -15,6 +15,10 @@ test('director uses configured routing and keeps its context out of the main con
   assert.equal(result.scene.stock,false);assert.equal(result.usage?.outputTokens,90)
   assert.match(request!.system!,/必须使用简体中文/);assert.doesNotMatch(request!.system!,/Use ASCII|Single-width characters only/)
   assert.equal(result.scene.concept,'阅读小剧场')
+  assert.deepEqual(result.scene.preset,{theme:'library',mood:'day'})
+  assert.equal(result.scene.direction?.say,raw.say)
+  assert.equal(result.scene.direction?.phase,'reading')
+  assert.doesNotMatch(request!.system!,/14 text rows|frame\(t, dt\)|绘图函数/)
 })
 test('reasoning consumes the output budget without text and reports token-limit explicitly',async()=>{
   let billed=0

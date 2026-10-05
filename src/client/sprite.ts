@@ -7,6 +7,8 @@ import {paintPixelScene} from './pixel-scenes'
 import {packFrameAt,resolvePackClip,type PackResources,type LoadedScene} from './resource-pack'
 import {pixelLayout} from './pixel-layout'
 import type {TravelPose} from './travel'
+import {plannedAction,type SceneDirection} from '../scene-plan'
+import {paintDirection,paintDirectionBubble} from './scene-direction'
 
 /** Use the same fitting rule for both layers so foreground occlusion stays aligned. */
 function paintPackLayer(g:CanvasRenderingContext2D,scene:LoadedScene,image:HTMLImageElement):void{
@@ -79,7 +81,7 @@ export function poseFor(m:MascotDraw,phase:Phase,t:number,outcome:string):Pose {
   return phase==='thinking'?'think':'idle'
 }
 /** Paint the engine grid and fixed portrait sprites using nearest-neighbor scaling. */
-export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:number;rows:number;mascots:MascotDraw[];t:number;preset?:PixelPreset},image:HTMLImageElement,crops:Crop[],phase:Phase,outcome:string,animations?:AnimationSprites,clock?:MotionClock,resources?:PackResources,travel?:TravelPose):void {
+export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:number;rows:number;mascots:MascotDraw[];t:number;preset?:PixelPreset;direction?:SceneDirection},image:HTMLImageElement,crops:Crop[],phase:Phase,outcome:string,animations?:AnimationSprites,clock?:MotionClock,resources?:PackResources,travel?:TravelPose):void {
   if((!frame.preset&&!resources?.scene&&clock?.working!==false)||(resources?.character&&!resources.character.spec.actions['walk-left']&&!resources.character.spec.actions['walk-right']))travel=undefined
   const cw=g.canvas.width/frame.cols,ch=g.canvas.height/frame.rows,clear=0x01000000
   g.clearRect(0,0,g.canvas.width,g.canvas.height);g.imageSmoothingEnabled=false
@@ -87,15 +89,19 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
   g.font=`${ch}px "Cascadia Mono",Consolas,"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",monospace`;g.textBaseline='top'
   const mascots=frame.mascots.length?frame.mascots:[{x:frame.cols/2-7,py:frame.rows*2-10,look:{pose:'stand',stride:-1,facing:0,scale:1,arms:{left:'down',right:'down'}}} as MascotDraw]
   const time=clock?.time??frame.t
+  const speech=frame.direction?.phase===phase&&clock?.working!==false&&frame.t<12?frame.direction.say:''
+  const heroMaxHeight=g.canvas.height*(frame.direction ? .58 : .72)
+  const actionForPlan=(m:MascotDraw)=>plannedAction(frame.direction,phase,outcome,clock?.working,playbackAction(m,phase,outcome,clock))
   const actionForSprite=(m:MascotDraw)=>{
-    const action=playbackAction(m,phase,outcome,clock)
+    const action=actionForPlan(m)
     return travel?.walking&&m===mascots[0]&&action!=='success'&&action!=='failed'?(travel.facing<0?'walk-left':'walk-right'):action
   }
-  const requested=playbackAction(mascots[0]!,phase,outcome,clock),localCharacter=resources?.character,localScene=resources?.scene
+  const requested=actionForPlan(mascots[0]!),localCharacter=resources?.character,localScene=resources?.scene
   const localClip=localCharacter?resolvePackClip(localCharacter.spec,requested).clip:undefined
   const layoutAction=localClip?(localClip.stance==='prone'?(requested==='type'?'type':'read'):(requested==='read'||requested==='type'?'idle':requested)):requested
   let layout=localScene?{...pixelLayout(g.canvas.width,g.canvas.height,layoutAction),centerX:g.canvas.width*localScene.spec.centerX,footY:g.canvas.height*localScene.spec.footY}:frame.preset?paintPixelScene(g,frame.preset,time,layoutAction):undefined
   if(localScene){g.fillStyle=localScene.spec.color;g.fillRect(0,0,g.canvas.width,g.canvas.height);paintPackLayer(g,localScene,localScene.background)}
+  if(frame.direction&&!localScene)paintDirection(g,frame.direction,time)
   if(layout&&travel)layout={...layout,centerX:travel.x*g.canvas.width,footY:travel.walking&&!localScene?g.canvas.height-8:layout.footY}
   if(g.canvas.dataset){
     if(localScene){g.canvas.dataset.theme=`local:${localScene.id}`;delete g.canvas.dataset.mood}
@@ -103,6 +109,7 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
     if(localScene)g.canvas.dataset.scenePack=localScene.id;else delete g.canvas.dataset.scenePack
   }
   if(!layout&&g.canvas.dataset){delete g.canvas.dataset.theme;delete g.canvas.dataset.mood}
+  if(!frame.direction&&g.canvas.dataset){delete g.canvas.dataset.sceneOrigin;delete g.canvas.dataset.sceneProps;delete g.canvas.dataset.sceneEffects}
   // Live director scenes retain the interpreter; presets use the finer pixel canvas.
   // Paint all backgrounds first so a wide glyph's second cell cannot cover it.
   if(!layout)for(let row=0;row<frame.rows;row++)for(let col=0;col<frame.cols;col++){
@@ -125,7 +132,7 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
       const action=actionForSprite(m),resolved=resolvePackClip(localCharacter.spec,action),clip=resolved.clip,f=packFrameAt(clip,travel?.walking?travel.seconds:time)
       const scale=Math.max(.3,Math.min(2,m.look.scale))*(localScene?.spec.scale??1)
       // Fit the whole clip at one pixel scale; moving hands cannot resize the body.
-      const unit=Math.min(g.canvas.height*.72*scale/localCharacter.spec.referenceHeight,g.canvas.width/Math.max(...clip.frames.map(f=>f.w)),g.canvas.height/Math.max(...clip.frames.map(f=>f.h)))
+      const unit=Math.min(heroMaxHeight*scale/localCharacter.spec.referenceHeight,g.canvas.width/Math.max(...clip.frames.map(f=>f.w)),g.canvas.height/Math.max(...clip.frames.map(f=>f.h)))
       const width=f.w*unit,height=f.h*unit,anchorX=(resolved.mirror?f.w-f.anchorX:f.anchorX)*unit
       const foot=layout?.footY??Math.min(g.canvas.height-2,Math.max(height,(m.py+8*scale)*ch/2)),center=layout?.centerX??actorCenter??(m.x+7*scale)*cw
       const x=Math.max(0,Math.min(g.canvas.width-width,center-anchorX)),y=Math.max(0,Math.min(g.canvas.height-height,foot-f.anchorY*unit))
@@ -143,7 +150,7 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
       const registered=walking?(animations.walking?sheet.frames[(action==='walk-left'?0:4)+index]:undefined):sheet.frames[row*4+index]!
       const crop=registered?.crop??crops[(action==='walk-left'?4:6)+index%2]!
       if(m===mascots[0]&&g.canvas.dataset){g.canvas.dataset.action=action;g.canvas.dataset.frame=String(index);g.canvas.dataset.motionTime=String(time);g.canvas.dataset.sceneTime=String(frame.t);g.canvas.dataset.playing=String(clock?.playing??true);g.canvas.dataset.walking=String(travel?.walking??false)}
-      const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(g.canvas.height*.72,12*scale*ch/2)*(localScene?.spec.scale??1)/(walking&&!registered?crops[0]!.h:sheet.referenceHeight)
+      const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(heroMaxHeight,12*scale*ch/2)*(localScene?.spec.scale??1)/(walking&&!registered?crops[0]!.h:sheet.referenceHeight)
       const width=unit*crop.w,height=unit*crop.h,anchorX=registered?.anchorX??crop.w/2,anchorY=registered?.anchorY??crop.h
       const foot=layout?.footY??Math.min(g.canvas.height-2,Math.max(height,(m.py+8*scale)*ch/2))
       const x=Math.max(0,Math.min(g.canvas.width-width,(layout?.centerX??actorCenter??(m.x+7*scale)*cw)-anchorX*unit))
@@ -155,11 +162,12 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
     }
     const pose=poseFor(m,phase,frame.t,outcome),crop=crops[POSES.indexOf(pose)]!
     // All poses share the standing sprite's pixel scale, so prone poses stay shorter.
-    const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(g.canvas.height*.72,12*scale*ch/2)/crops[0]!.h,height=unit*crop.h,width=unit*crop.w
+    const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(heroMaxHeight,12*scale*ch/2)/crops[0]!.h,height=unit*crop.h,width=unit*crop.w
     const foot=Math.min(g.canvas.height-2,Math.max(height,(m.py+8*scale)*ch/2))
     const x=Math.max(0,Math.min(g.canvas.width-width,(m.x+7*scale)*cw-width/2))
     const bob=pose.startsWith('walk')?Math.round(Math.sin(frame.t*12)*1.5):Math.round(Math.sin(frame.t*3))
     g.drawImage(image,crop.x,crop.y,crop.w,crop.h,Math.round(x),Math.round(foot-height+bob),Math.round(width),Math.round(height))
   }
   if(localScene?.foreground)paintPackLayer(g,localScene,localScene.foreground)
+  if(speech)paintDirectionBubble(g,speech)
 }

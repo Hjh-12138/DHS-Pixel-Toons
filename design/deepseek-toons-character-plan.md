@@ -1,5 +1,7 @@
 # DeepSeek Toons 角色方案
 
+完整人设见 [鲸鱼娘角色设定](whale-girl-character.md)，身份、外观目标与性格以该文件为准。本文保留已有素材和动作制作记录；下述视觉方案属于旧版素材，尚未按新设定重绘。
+
 ## 主角与视觉设定
 
 用户指定参考图：`E:\heishou\minimax h3 mx\deepseek_girl\deepseek三视图.png`。

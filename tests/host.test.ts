@@ -4,7 +4,7 @@ import type {Context} from '@deepseek-ai/cordis'
 import type {GenerateOptions,StreamChunk} from '@deepseek-ai/dsh-llm'
 import {apply,type ToonsConfig} from '../src/index'
 const config:ToonsConfig={enabled:true,source:'ready-made only',fps:20,intervalMs:60000,timeoutMs:5000,maxTokens:1200,provider:'',model:'',stateDirectory:''}
-const raw={concept:'阅读小剧场',code:'function frame(t,dt){clawd(20,4);}',actors:[],particles:[],background:{effect:'waves',palette:['#113','#448','#99f'],speed:.4,intensity:.2}}
+const raw={concept:'阅读小剧场',theme:'library',mood:'day',action:'read',props:[],effects:[],say:''}
 function harness(stream:(options:GenerateOptions)=>AsyncIterable<StreamChunk>,overrides:Partial<ToonsConfig>={}){
   const hooks=new Map<string,Function>(),disposers:Function[]=[],warnings:string[]=[],routes=new Map<string,{fetch:(request:Request)=>Promise<Response>}>();let requests=0
   const agent={id:'test',status:'running',options:{provider:'fallback',model:'fallback'},session:{requestHeader:()=>({config:{provider:'deepseek',model:'existing',reasoningEffort:'high'}}),snapshotEvents:()=>[{type:'turn/start',seq:0,data:{turn:1}}]},ctx:{llm:{resolveModelInfo:async()=>({reasoning:{efforts:[{id:'off'},{id:'high'}]}}),prepareCall:async(c:Record<string,unknown>)=>{requests++;return {config:c,stream}}}}}
