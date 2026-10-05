@@ -1,0 +1,7 @@
+- id: agent-default-model
+  config:
+    provider: toons-offline
+    model: offline
+- insert:
+    - id: toons-offline-provider
+      name: ./offline-provider.mjs

@@ -1,0 +1,438 @@
+{
+  "format": "dsh-toons-pack",
+  "version": 1,
+  "id": "mint-robot-garden",
+  "name": "薄荷机器人 · 月光庭院",
+  "author": "DSH Toons",
+  "description": "本地资源示例：十类动作、独立角色和庭院场景。可分别切换人物与背景。",
+  "character": {
+    "atlases": {
+      "main": "character.png"
+    },
+    "referenceHeight": 72,
+    "actions": {
+      "idle": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 1400
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 0,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 0,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 120
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 0,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "think": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 80,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 80,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 80,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 80,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "read": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 160,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 160,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 160,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 160,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "type": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 240,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 120
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 240,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 120
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 240,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 120
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 240,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 120
+          }
+        ]
+      },
+      "search": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 320,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 320,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 320,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 320,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "check": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 400,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 400,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 400,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 400,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "success": {
+        "loop": false,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 480,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 480,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 480,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 480,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "failed": {
+        "loop": false,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 560,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 560,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 560,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 560,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      },
+      "walk-right": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "main",
+            "x": 0,
+            "y": 640,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 64,
+            "y": 640,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 128,
+            "y": 640,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          },
+          {
+            "atlas": "main",
+            "x": 192,
+            "y": 640,
+            "w": 64,
+            "h": 80,
+            "anchorX": 32,
+            "anchorY": 76,
+            "durationMs": 300
+          }
+        ]
+      }
+    }
+  },
+  "scene": {
+    "background": "background.png",
+    "fit": "cover",
+    "color": "#233f54",
+    "centerX": 0.52,
+    "footY": 0.94,
+    "scale": 1
+  }
+}

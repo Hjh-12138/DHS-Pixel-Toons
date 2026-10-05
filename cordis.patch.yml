@@ -1,0 +1,8 @@
+- insert:
+    - id: dsh-toons
+      name: dsh-toons
+      config:
+        enabled: true
+        source: ready-made only
+        fps: 20
+        intervalMs: 60000

@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","include":["src/client","src/preview.tsx","src/worker.ts","src/activity.ts","src/scene.ts","src/engine"],"exclude":["src/index.ts","src/director.ts"]}

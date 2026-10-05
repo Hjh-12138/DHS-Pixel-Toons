@@ -1,0 +1,10 @@
+node_modules/
+lib/
+work/
+dist/
+*.tgz
+*.log
+test-results/
+.env
+.env.*
+!.env.example

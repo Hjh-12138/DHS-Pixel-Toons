@@ -1,0 +1,14 @@
+- id: directory-picker
+  disabled: true
+- insert:
+    - id: directory-picker-browse
+      name: '@deepseek-ai/dsh-host-directory-picker-browse'
+    - id: ui-directory-picker-browse
+      name: '@deepseek-ai/dsh-client-ui-directory-picker-browse'
+    - id: dsh-toons
+      name: ./lib/index.js
+      config:
+        enabled: true
+        source: ready-made only
+        fps: 20
+        intervalMs: 60000

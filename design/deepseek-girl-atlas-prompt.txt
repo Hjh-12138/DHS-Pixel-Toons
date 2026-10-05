@@ -1,0 +1,19 @@
+Use case: stylized-concept. Asset type: fixed-character sprite pose atlas for a real browser animation plugin.
+Input image 1 is the authoritative character turnaround. Input image 2 is the approved pixel-art look. Keep the exact same girl, clothing and hair identity throughout.
+Create one transparent PNG atlas in a rigorously aligned 4-COLUMN by 3-ROW rectangular grid, exactly TWELVE separate full-body sprites. Each grid cell is the same size and has safe transparent padding. Do not draw the grid or any labels. Character feet share the same baseline within each cell. Hair curl, skirts, hands, props and whale tails fit wholly inside their own cells and never touch neighboring cells. Every character is approximately the same full-body height and head size.
+Read cells left-to-right, top-to-bottom:
+row 1 cell 1: front idle, relaxed hands down, gentle smile, open blue eyes.
+row 1 cell 2: front thinking, one small hand at cheek, curious expression.
+row 1 cell 3: front three-quarter reading an open small book held at chest; do not hide face.
+row 1 cell 4: front three-quarter typing with hands over a small floating keyboard at waist, no desk, no chair.
+row 2 cell 1: walking LEFT in clear side view, left leg stepping forward and right leg back, slight natural arm swing.
+row 2 cell 2: walking LEFT in clear side view, opposite gait, right leg forward and left leg back. Head, hair and outfit match previous cell.
+row 2 cell 3: walking RIGHT in clear side view, left leg stepping forward and right leg back.
+row 2 cell 4: walking RIGHT in clear side view, opposite gait, right leg forward and left leg back.
+row 3 cell 1: searching, front three-quarter, holding a small magnifying glass beside face.
+row 3 cell 2: checking tests, front, holding a small clipboard with a green checkmark and looking focused.
+row 3 cell 3: celebrating success, front, both arms raised, cheerful closed smiling eyes. Feet remain on common baseline.
+row 3 cell 4: task failure, front, shoulders and hands lowered, softly disappointed expression, blue eyes visible.
+Identity details: cobalt long wavy hair with lighter blue tips, upward curved ahoge, large blue eyes, white frilled maid headband, small blue side bow, fin-shaped side hair, fully covering navy maid dress, white bib and ruffled apron with blue whale emblem, small navy neck bow with blue jewel, restrained gold skirt accents, white tights, navy Mary Jane shoes, blue whale tail and white rear-waist bow visible where perspective permits. Cute wholesome 2.5-head-high proportions. No other characters.
+Style: authentic crisp pixel sprite art with a uniform deliberate square pixel grid, logical sprite approximately64x80 pixels displayed at nearest-neighbor magnification, compact consistent palette, flat pixel color clusters and stepped edges, only 2-3 shade levels per material. Simplify lace for small-size readability. No painterly texture, no anti-aliasing, no smooth gradients, no glow, no 3D, no soft shadows.
+Actual transparent alpha background. No ground, no cast shadows, no checkerboard drawn into pixels, no words, no watermark. Treat all poses as one reusable same-character atlas; do not introduce costume variants.
