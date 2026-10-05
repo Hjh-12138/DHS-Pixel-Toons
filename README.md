@@ -1,8 +1,55 @@
-# DeepSeek Toons
+<p align="center">
+  <img src="design/deepseek-girl-pixel-turnaround.png" width="760" alt="像素风鲸鱼娘：蓝发、女仆裙和鲸鱼尾巴的正面、侧面与背面设定图" />
+</p>
 
-给 DeepSeek Harness 原生聊天界面添加像素角色动画。当前版本 0.1.14，目标运行时为 **Harness 0.2.0-rc.2**。
+<h1 align="center">DeepSeek Toons</h1>
 
-项目位置：`E:\heishou\DSH tool`。主角依据用户提供的蓝发鲸鱼女孩三视图制作；阅读、编辑和撰写回复使用趴姿。
+<p align="center">
+  <strong>让等待，有一点陪伴。</strong><br />
+  给 DeepSeek Harness 原生聊天界面添加一只像素鲸鱼娘。<br />
+  陪你翻书、敲键盘、找资料，任务结束后在小世界里闲逛。
+</p>
+
+<p align="center">
+  <strong>v0.1.14</strong> · Harness <strong>0.2.0-rc.2</strong> · <a href="LICENSE">MIT</a>
+</p>
+
+<p align="center">
+  <a href="#动画一览">动画一览</a> ·
+  <a href="#当前功能">功能</a> ·
+  <a href="#安装">安装</a> ·
+  <a href="#开发与动作预览">开发与预览</a> ·
+  <a href="docs/local-resource-packs.md">自定义角色与场景</a>
+</p>
+
+## 动画一览
+
+### 你工作，她也忙
+
+阅读时趴着翻书，写代码时敲键盘；思考、搜索、测试和任务完成都有对应动作。
+
+<p align="center">
+  <img src="design/screenshots/reading-typing.gif" width="900" alt="鲸鱼娘在原生聊天界面里播放趴着阅读和敲键盘的逐帧动画" />
+</p>
+
+### 给她一个像素小世界
+
+12 个像素主题、24 个日光／暮色版本。书阁、工坊、鲸鱼港湾，也有罗德岛、列车车厢和蒙德风车广场。预制模式无需额外模型调用。
+
+<p align="center">
+  <img src="design/screenshots/game-themes-v016.gif" width="900" alt="鲸鱼娘在不同像素主题场景中的运行效果" />
+</p>
+
+<details>
+<summary>看看她左右走路的样子</summary>
+
+<p align="center">
+  <img src="design/screenshots/walk-cycle-v0114.png" width="900" alt="鲸鱼娘在蒙德风车广场中行走的动作预览" />
+</p>
+
+左右各 4 帧行走动画。任务完成后，她会庆祝一下，再走走停停；本地闲逛不增加模型请求。
+
+</details>
 
 ## 当前功能
 
