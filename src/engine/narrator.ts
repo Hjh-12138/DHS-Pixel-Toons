@@ -1,5 +1,6 @@
 // Drawing-language prompt adapted from claude-toons (MIT). No provider or authentication implementation.
 import { EFFECTS } from './effects'
+import {CHARACTER_PERSONA} from '../character'
 const HEAD = `You direct a tiny cartoon in DeepSeek Harness, a coding agent application. The Canvas strip is 90 text columns wide and 14 text rows tall. Each user message is JSON containing phase, task and failed, a short summary of the current task. Generate one self-contained scene that metaphorically reflects that work. Return the scene JSON described below. The fixed blue-haired chibi girl represents the agent.`
 const STYLE_LINES: Record<string, string> = {
   '3D': '"3D" means the scene is a 3D world drawn with camera, mesh3d, clawd3d and friends (a 2D Clawd or labels may sit on top)',
@@ -24,7 +25,13 @@ What makes a scene good:
 - Color with intent: each sprite is one color, so split a multicolored thing into several actors (you have up to 20). All colors must be clearly visible on a dark background.
 - These are guides, not a cage. Surprise the developer: an unexpected angle, a sight gag, a callback to an earlier scene, a tiny running subplot in the corner.
 
-Speech: Clawd can say one short line to the developer in a speech bubble. Make it fun to read: jokes, puns and a bit of personality are welcome. But it must be about what is actually happening and make sense at a glance to someone who has not read the log: name the real thing (the file, the test, the error) and say something about it a person would get immediately. "3 tests vs. one undefined password. undefined is winning." works; "the scrolls whisper of absence" does not. No riddles, nothing cryptic, nothing that only makes sense if you already know the metaphor. Skip speech when there is nothing worth saying: leave say empty.
+气泡台词生成（同时适用于代码中的 say() 和演员的 say 字段）：
+由模型根据以下人物设定与当前输入的 phase、task、failed 自主创作气泡台词；称呼、语气、情绪、措辞和反应均由你结合情境决定。
+
+人物设定：
+${CHARACTER_PERSONA}
+
+输出要求：用自然、简短的简体中文写一句适合气泡的台词，通常不超过 24 个汉字，留足显示宽度；文件名和命令保留原文。涉及当前工作的事实必须来自任务摘要，不编造文件、错误原因、数量、测试结果或完成状态。没有值得说的话时，演员 say 留空字符串，代码不调用 say()。
 
 You have two ways to draw, and can mix them in one scene:
 1. Declarative: actors, particles and a background, each moved by a math expression of time (below). Quick for simple staging.
@@ -58,7 +65,6 @@ function frame(t, dt) {
   const walking = cx < w / 2 - 7
   clawd(cx, h - 5, walking ? 1 : 0, walking ? Math.floor(cx / 1.25) % 4 : -1, !walking && fract(t * 0.4) < 0.05)
   sprite(cx + 2, h - 8, ' ▄███▄ \\n▀▀▀█▀▀▀\\n   │   ', '#e06c75')
-  if (!walking) say('雨里跑 npm test，三项没过，伞还撑得住。', cx + 7, h - 8)
 }
 `
 const EXAMPLE3D = `A 3D example, for the shape of it (do not copy the idea): a road into the distance with crates passing and Clawd on it.
@@ -87,7 +93,6 @@ function frame(t, dt) {
   const p = nearest && project(nearest.x, 1.5, nearest.z)
   if (p) text(p.x - 3, p.y - 1, "auth.ts", "#ffd")
   const me = clawd3d(0, 0, -1 - t * 1.5, {facing: 0, stride: Math.floor(t * 6) % 4})
-  if (me && t > 1) say("六个箱子一条路，测试还没过。", me.top.x, me.row)
 }`
 const TAIL = `
 Reply with one scene as JSON matching the schema:

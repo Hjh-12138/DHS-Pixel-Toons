@@ -125,10 +125,11 @@ export function Strip({sessionId,running,events,call,t,demo=false,walkPreview}:P
   return <section className="dsh-toons" aria-label={t('title')}>
     <style>{CSS}</style>
     {!prefs.compact&&<div className="toons-stage" ref={stage}><canvas ref={canvas} width={720} height={112} aria-label={label}/></div>}
+    {!prefs.compact&&running&&scene?.direction?.phase===activity.phase&&<span className="toons-speech" aria-live="polite">{scene.direction.say}</span>}
     <div className={`toons-controls${prefs.compact?' is-compact':''}`}>
       {!prefs.compact&&<>
         <select className="toons-mode" aria-label={t('settings')} value={prefs.source} disabled={!!prefs.scenePackId} title={prefs.scenePackId?'本地场景使用预制模式':undefined} onChange={e=>settings({source:e.target.value as Preferences['source']})}><option value="ready-made only">{t('stock')}</option><option value="mix">{t('mix')}</option></select>
-        <select className="toons-theme" aria-label={t('theme')} value={prefs.scenePackId?'local':prefs.theme??prefs.style} onChange={e=>{const value=e.target.value;settings(isPixelTheme(value)?{theme:value,scenePackId:undefined,source:'ready-made only'}:{theme:undefined,scenePackId:undefined,style:value as Preferences['style']})}}>{prefs.scenePackId&&<option value="local">本地 · {library.packs.find(p=>p.id===prefs.scenePackId)?.manifest.name??'资源场景'}</option>}<option value="pixel">{t('pixel')}</option><option value="all">{t('all')}</option><optgroup label={t('games')}>{GAME_THEMES.map(id=><option key={id} value={id}>{THEME_NAMES[id]}</option>)}</optgroup><optgroup label={t('otherThemes')}>{PIXEL_THEMES.filter(id=>!isGameTheme(id)).map(id=><option key={id} value={id}>{THEME_NAMES[id]}</option>)}</optgroup></select>
+        <select className="toons-theme" aria-label={t('theme')} value={prefs.scenePackId?'local':prefs.source==='mix'?'director':prefs.theme??prefs.style} onChange={e=>{const value=e.target.value;if(value==='director')return;settings(isPixelTheme(value)?{theme:value,scenePackId:undefined,source:'ready-made only'}:{theme:undefined,scenePackId:undefined,source:'ready-made only',style:value as Preferences['style']})}}>{prefs.source==='mix'&&<option value="director">模型编排{scene?.preset?` · ${THEME_NAMES[scene.preset.theme]}`:''}</option>}{prefs.scenePackId&&<option value="local">本地 · {library.packs.find(p=>p.id===prefs.scenePackId)?.manifest.name??'资源场景'}</option>}<option value="pixel">{t('pixel')}</option><option value="all">{t('all')}</option><optgroup label={t('games')}>{GAME_THEMES.map(id=><option key={id} value={id}>{THEME_NAMES[id]}</option>)}</optgroup><optgroup label={t('otherThemes')}>{PIXEL_THEMES.filter(id=>!isGameTheme(id)).map(id=><option key={id} value={id}>{THEME_NAMES[id]}</option>)}</optgroup></select>
         <span className="toons-caption" title={status||undefined}>{status||(prefs.scenePackId?'本地场景 · 离线播放':prefs.source==='mix'?t('cost'):scene?.concept)}</span>
         {tokens>0&&<span className="toons-tokens">{t('tokens')}: {tokens}</span>}
       </>}
@@ -160,6 +161,7 @@ const CSS=`
 .toons-resource-toggle{grid-area:resources;white-space:nowrap}
 .dsh-toons button:disabled,.dsh-toons select:disabled{opacity:.5;cursor:default}
 .toons-resources{border-top:1px solid color-mix(in srgb,currentColor 13%,transparent);padding:14px 16px;background:color-mix(in srgb,var(--toon-blue) 2%,transparent)}
+.toons-speech{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .toons-resource-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
 .toons-resource-heading strong{font-size:13px;font-weight:600}
 .toons-resource-heading p{margin:4px 0 0;opacity:.6;font-size:11px}

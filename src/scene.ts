@@ -1,8 +1,9 @@
 import type { Phase } from './engine/library'
 import {PixelDeck,PIXEL_THEMES,THEME_NAMES,type PixelPreset,type PixelTheme} from './presets'
 import { cleanScript, stage, type Script } from './engine/script'
+import type {SceneDirection} from './scene-plan'
 
-export type SceneSpec = { concept: string; raw: unknown; stock: boolean; preset?:PixelPreset }
+export type SceneSpec = { concept: string; raw: unknown; stock: boolean; preset?:PixelPreset;direction?:SceneDirection }
 export const stockCount = PIXEL_THEMES.length*2
 /** Shuffled scene decks stay instance-local so independent sessions never share state. */
 export class SceneDeck {

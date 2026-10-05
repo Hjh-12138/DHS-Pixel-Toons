@@ -18,7 +18,7 @@ export class SceneSchedule {
   setPlaying(playing:boolean,now:number):void {this.advance(now);this.playing=playing}
   clearPending():void {this.pending=undefined}
   age(now:number):number {this.advance(now);return this.elapsed}
-  private key(scene:SceneSpec):string {return JSON.stringify([scene.stock,scene.preset,scene.raw])}
+  private key(scene:SceneSpec):string {return JSON.stringify([scene.stock,scene.preset,scene.raw,scene.direction])}
   /** Manual selections and broken scenes are the only immediate replacements. */
   replace(scene:SceneSpec,phase:Phase,now:number):SceneSpec {
     this.advance(now);this.scene=scene;this.phase=phase;this.identity=this.key(scene);this.elapsed=0;this.pending=undefined
