@@ -3,11 +3,12 @@ import assert from 'node:assert/strict'
 import {CharacterTravel} from '../src/client/travel'
 import {animationBoundsFromPixels,paint,type AnimationSprites} from '../src/client/sprite'
 import {frameAt} from '../src/client/animation'
+import {animationFixture} from './helpers/animation-fixture'
 import type {MascotDraw} from '../src/engine/script'
 import type {Phase} from '../src/engine/library'
 
 const input={delta:.05,playing:true,working:true,phase:'thinking' as Phase,reacting:false,width:720,height:112,home:.52,canWalk:true}
-test('waiting alternates real walks and work poses, using all four walk frames in both directions',()=>{
+test('waiting alternates real walks and work poses, using all eight walk frames in both directions',()=>{
   const travel=new CharacterTravel(),seen=new Set<string>(),positions=new Set<number>(),frames=new Map<string,Set<number>>()
   let previous=travel.snapshot().x
   for(let i=0;i<1400;i++){
@@ -16,7 +17,7 @@ test('waiting alternates real walks and work poses, using all four walk frames i
     if(p.walking){const action=p.facing<0?'walk-left':'walk-right';if(!frames.has(action))frames.set(action,new Set());frames.get(action)!.add(frameAt(action,p.seconds))}
   }
   assert.ok(positions.size>150);assert.deepEqual([...seen].sort(),['-1','1','rest'])
-  assert.equal(frames.get('walk-left')?.size,4);assert.equal(frames.get('walk-right')?.size,4)
+  assert.equal(frames.get('walk-left')?.size,8);assert.equal(frames.get('walk-right')?.size,8)
 })
 test('an inactive task roams in both directions with short rests even when the last tool was reading',()=>{
   const travel=new CharacterTravel(),directions=new Set<number>();let firstWalk=0,restLength=0,longestRest=0
@@ -73,11 +74,11 @@ test('walk routes stay inside narrow and wide stages and manual directions stop 
     }
   }
 })
-test('the two row walking atlas registers eight frames with a shared foot baseline',()=>{
-  const width=80,height=50,pixels=new Uint8ClampedArray(width*height*4)
-  for(let row=0;row<2;row++)for(let col=0;col<4;col++)for(let y=row*25+3;y<row*25+22;y++)for(let x=col*20+3;x<col*20+15;x++)pixels[(y*width+x)*4+3]=255
-  const sheet=animationBoundsFromPixels(pixels,width,height,[0,1],2);assert.equal(sheet.frames.length,8)
-  for(const row of [0,1]){const roots=sheet.frames.slice(row*4,row*4+4).map(f=>f.crop.y+f.anchorY);assert.ok(roots.every(y=>y===roots[0]))}
+test('the four row walking atlas registers sixteen frames with a shared foot baseline per direction',()=>{
+  const width=80,height=100,pixels=new Uint8ClampedArray(width*height*4)
+  for(let row=0;row<4;row++)for(let col=0;col<4;col++)for(let y=row*25+3;y<row*25+22;y++)for(let x=col*20+3;x<col*20+15;x++)pixels[(y*width+x)*4+3]=255
+  const sheet=animationBoundsFromPixels(pixels,width,height,[0,1,2,3],4);assert.equal(sheet.frames.length,16)
+  for(const direction of [0,1]){const roots=sheet.frames.slice(direction*8,direction*8+8).map((f,i)=>f.crop.y+f.anchorY-Math.floor(i/4)*25);assert.ok(roots.every(y=>y===roots[0]))}
 })
 test('resizing during a walk bounds the old destination so the character can still arrive and stop',()=>{
   const travel=new CharacterTravel();for(let i=0;i<20;i++)travel.advance({...input,direction:-1})
@@ -89,21 +90,21 @@ test('resizing during a walk bounds the old destination so the character can sti
 })
 test('the renderer draws moving walk sprites at their route position and keeps desk furniture anchored',()=>{
   const figures:MascotDraw[]=[{x:10,py:4,look:{pose:'stand',stride:-1,facing:0,scale:1,arms:{left:'down',right:'down'}}} as MascotDraw]
-  const frames=Array.from({length:16},(_,i)=>({crop:{x:i*100,y:0,w:80,h:100},anchorX:40,anchorY:100}))
-  const sheet={image:{} as HTMLImageElement,frames,referenceHeight:100},sprites:AnimationSprites={active:sheet,work:sheet,walking:sheet}
+  const frames=Array.from({length:32},(_,i)=>({crop:{x:i*100,y:0,w:80,h:100},anchorX:40,anchorY:100}))
+  const sheet={image:{} as HTMLImageElement,frames,referenceHeight:100},sprites:AnimationSprites=animationFixture(sheet,{'walk-right':{...sheet,frames:frames.slice(8,16)}})
   const canvas={width:720,height:112,dataset:{} as Record<string,string>},draws:number[][]=[]
   const g={canvas,clearRect(){},fillRect(){},fillText(){},drawImage(...args:unknown[]){draws.push(args.slice(1) as number[])}} as unknown as CanvasRenderingContext2D
   const frame={cells:new Uint32Array(90*8*3),cols:90,rows:8,t:2,preset:{theme:'studio' as const,mood:'day' as const},mascots:figures}
   for(const x of [.3,.7])paint(g,frame,sheet.image,Array(12).fill(frames[0]!.crop),'reading','none',sprites,{time:0,outcomeAge:0,playing:true,working:true},undefined,{x,walking:true,facing:x<.5?-1:1,seconds:.31})
-  assert.equal(draws[0]![0],200);assert.equal(draws[1]![0],600)
+  assert.equal(draws[0]![0],400);assert.equal(draws[1]![0],1200)
   assert.ok(draws[1]![4]!>draws[0]![4]!+250)
   assert.equal(canvas.dataset.action,'walk-right');assert.equal(canvas.dataset.theme,'studio')
   assert.equal(canvas.dataset.walking,'true')
 })
 test('idle roaming paints the frozen live scene and moves only its character; running live scripts keep their own placement',()=>{
   const mascot={x:10,py:4,look:{pose:'stand',stride:-1,facing:0,scale:1,arms:{left:'down',right:'down'}}} as MascotDraw
-  const frames=Array.from({length:16},(_,i)=>({crop:{x:i*100,y:0,w:80,h:100},anchorX:40,anchorY:100}))
-  const sheet={image:{} as HTMLImageElement,frames,referenceHeight:100},sprites:AnimationSprites={active:sheet,work:sheet,walking:sheet}
+  const frames=Array.from({length:32},(_,i)=>({crop:{x:i*100,y:0,w:80,h:100},anchorX:40,anchorY:100}))
+  const sheet={image:{} as HTMLImageElement,frames,referenceHeight:100},sprites:AnimationSprites=animationFixture(sheet,{'walk-right':{...sheet,frames:frames.slice(8,16)}})
   const cells=new Uint32Array(90*8*3);for(let i=0;i<90*8;i++){cells[i*3+1]=0x01000000;cells[i*3+2]=0x01000000}cells[2]=0xabcdef
   const draws:number[][]=[],backgrounds:number[][]=[],dataset:Record<string,string>={}
   const g={canvas:{width:720,height:112,dataset},clearRect(){},fillRect(...args:number[]){backgrounds.push(args)},fillText(){},drawImage(...args:unknown[]){draws.push(args.slice(1) as number[])}} as unknown as CanvasRenderingContext2D
@@ -112,4 +113,15 @@ test('idle roaming paints the frozen live scene and moves only its character; ru
   assert.ok(draws[1]![4]!>draws[0]![4]!+350);assert.equal(dataset.action,'walk-right');assert.deepEqual(backgrounds,[[0,0,8,14],[0,0,8,14]])
   paint(g,frame,sheet.image,[], 'reading','none',sprites,{time:2,outcomeAge:0,playing:true,working:true},undefined,{x:.75,walking:true,facing:1,seconds:.1})
   assert.equal(dataset.action,'read');assert.ok(draws[2]![4]!<150)
+})
+test('walking keeps a planted foot at one floor level without an added whole-body hop',()=>{
+ const draws:number[][]=[],dataset:Record<string,string>={}
+ const g={canvas:{width:800,height:200,dataset},clearRect(){},fillRect(){},fillText(){},drawImage(...args:unknown[]){draws.push(args.slice(1) as number[])}} as unknown as CanvasRenderingContext2D
+ const frames=Array.from({length:8},(_,i)=>({crop:{x:i*100,y:0,w:80,h:100},anchorX:40,anchorY:100}))
+ const sheet={image:{} as HTMLImageElement,frames,referenceHeight:100},sprites=animationFixture(sheet)
+ const mascot={x:10,py:4,look:{pose:'stand',stride:-1,facing:0,scale:1,arms:{left:'down',right:'down'}}} as MascotDraw
+ const frame={cells:new Uint32Array(100*14*3),cols:100,rows:14,t:0,preset:{theme:'studio' as const,mood:'day' as const},mascots:[mascot]}
+ for(let i=0;i<8;i++)paint(g,frame,sheet.image,[],'reading','none',sprites,{time:0,outcomeAge:0,playing:true,working:true},undefined,{x:.5,walking:true,facing:1,seconds:i*.075+.001})
+ assert.equal(new Set(draws.map(d=>d[5]!+d[7]!)).size,1,'the ground must not move as the gait advances')
+ assert.deepEqual(draws.map(d=>d[0]),[0,100,200,300,400,500,600,700])
 })

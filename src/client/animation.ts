@@ -3,17 +3,19 @@ import type {Phase} from '../engine/library'
 
 export type Action='idle'|'think'|'read'|'type'|'search'|'check'|'success'|'failed'|'walk-left'|'walk-right'
 export type Clip={durations:readonly number[];loop:boolean}
+export const FRAMES_PER_ACTION=8
+export const ATLAS_COLUMNS=4
 export const CLIPS:Record<Action,Clip>={
-  idle:{durations:[1700,380,120,380],loop:true},
-  think:{durations:[650,350,500,350],loop:true},
-  read:{durations:[1400,200,200,350],loop:true},
-  type:{durations:[100,100,100,100],loop:true},
-  search:{durations:[300,300,300,300],loop:true},
-  check:{durations:[650,250,350,350],loop:true},
-  success:{durations:[220,180,340,650],loop:false},
-  failed:{durations:[350,350,450,600],loop:false},
-  'walk-left':{durations:[150,150,150,150],loop:true},
-  'walk-right':{durations:[150,150,150,150],loop:true},
+  idle:{durations:[1500,200,190,60,60,120,190,260],loop:true},
+  think:{durations:[325,325,175,175,250,250,175,175],loop:true},
+  read:{durations:[1200,200,100,100,100,100,175,175],loop:true},
+  type:{durations:[50,50,50,50,50,50,50,50],loop:true},
+  search:{durations:[150,150,150,150,150,150,150,150],loop:true},
+  check:{durations:[325,325,125,125,175,175,175,175],loop:true},
+  success:{durations:[110,110,90,90,170,170,325,325],loop:false},
+  failed:{durations:[175,175,175,175,225,225,300,300],loop:false},
+  'walk-left':{durations:[75,75,75,75,75,75,75,75],loop:true},
+  'walk-right':{durations:[75,75,75,75,75,75,75,75],loop:true},
 }
 export const OUTCOME_SECONDS=1.8
 /** Activity controls work poses; scene movement and gestures still apply. */

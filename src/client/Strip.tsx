@@ -1,13 +1,18 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
-import spriteUrl from '../../assets/deepseek-girl-poses.png'
-import activeUrl from '../../assets/deepseek-girl-active.png'
-import workUrl from '../../assets/deepseek-girl-work.png'
-import walkingUrl from '../../assets/deepseek-girl-walk.png'
+import idleUrl from '../../assets/animations/idle.png'
+import thinkUrl from '../../assets/animations/think.png'
+import readUrl from '../../assets/animations/read.png'
+import typeUrl from '../../assets/animations/type.png'
+import searchUrl from '../../assets/animations/search.png'
+import checkUrl from '../../assets/animations/check.png'
+import successUrl from '../../assets/animations/success.png'
+import failedUrl from '../../assets/animations/failed.png'
+import walkingUrl from '../../assets/animations/walk.png'
 import workerSource from 'toons:worker-source'
 import {activityFrom,type ActivityEvent} from '../activity'
 import {SceneDeck,type SceneSpec} from '../scene'
-import {atlasBounds,animationSheet,paint} from './sprite'
-import {advanceMotion,OUTCOME_SECONDS,type MotionClock} from './animation'
+import {actionSheets,paint} from './sprite'
+import {advanceMotion,OUTCOME_SECONDS,type Action,type MotionClock} from './animation'
 import {CharacterTravel,type TravelPose} from './travel'
 import {bitmapSize,GRID_ROWS,stageColumns} from './layout'
 import type {ToonsKey} from './locales'
@@ -61,10 +66,11 @@ export function Strip({sessionId,running,events,call,t,demo=false,walkPreview}:P
   useEffect(()=>{
     let alive=true
     const load=(src:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Sprite image unavailable'));image.src=src})
-    void Promise.all([load(spriteUrl),load(activeUrl),load(workUrl),load(walkingUrl)]).then(([image,activeImage,workImage,walkingImage])=>{
+    const urls:Record<Action,string>={idle:idleUrl,think:thinkUrl,read:readUrl,type:typeUrl,search:searchUrl,check:checkUrl,success:successUrl,failed:failedUrl,'walk-left':walkingUrl,'walk-right':walkingUrl}
+    void Promise.all(Object.entries(urls).map(async([action,url])=>[action,await load(url)] as const)).then(entries=>{
       if(!alive)return
-      const animations={active:animationSheet(activeImage,[0,1,2,3]),work:animationSheet(workImage,[2,3]),walking:animationSheet(walkingImage,[0,1],2)}
-      const crops=atlasBounds(image),url=URL.createObjectURL(new Blob([workerSource],{type:'text/javascript'})),w=new Worker(url)
+      const animations=actionSheets(Object.fromEntries(entries) as Record<Action,HTMLImageElement>),image=animations.idle.image,crops:Parameters<typeof paint>[3]=[]
+      const url=URL.createObjectURL(new Blob([workerSource],{type:'text/javascript'})),w=new Worker(url)
       URL.revokeObjectURL(url);worker.current=w
       let lastFrame:Parameters<typeof paint>[1]|undefined
       redraw.current=()=>{const target=canvas.current;if(!lastFrame||!target)return

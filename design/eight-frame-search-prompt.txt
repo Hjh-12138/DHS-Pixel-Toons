@@ -1,0 +1,13 @@
+Use case: identity-preserve. NEW EIGHT-FRAME magnifying-glass SEARCH animation sheet. Attached image is character identity/style reference ONLY, not the requested pose or layout.
+Exactly4columns x2rows, EIGHT full-body sprites, wide2:1 transparent RGBA canvas. Top row frames1-4, bottom row5-8 are ONE continuous clockwise scanning loop, NEVER two repeated four-frame loops.
+Every girl faces straight FRONT with the SAME body/costume orientation. Blue hair bow and blue whale tail always to VIEWER-RIGHT. Left-on-image arm holds ONE gold-rimmed blue magnifying glass in ALL8frames. Right-on-image hand remains resting on hip in ALL8frames. Never swap hands. Never mirror body. Same face, blue maid dress, white whale apron, proportions, scale, grounded feet, crisp pixel art as reference. Keep entire ahoge, shoes, tail and prop inside EACH equal square cell with at least8% transparent padding and clear outer edges.
+Glass moves in a SMALL clockwise oval entirely around the LEFT-on-image eye; it NEVER crosses to right side of face. Relative to face center at80px character height, use these EIGHT DISTINCT glass centers:
+1 left-low(-18,+4), hand/elbow low.
+2 far-left mid(-21,-3), forearm raises.
+3 left-high(-18,-11), hand higher.
+4 upper-left near forehead(-10,-15), elbow highest.
+5 near-center upper(-3,-11), forearm angles across a little but same left-on-image hand.
+6 near-center middle(-1,-3), elbow lowers.
+7 left-center lower(-5,+5), hand lowers farther.
+8 left-low(-12,+9), forearm nearly resting, then smoothly1.
+Eight different GLASS POSITIONS and FOREARM ANGLES in one orbit. The second row continues downward from top row, never resets. Eyes follow glass, head may tilt a few degrees, torso and feet fixed. Keep same glass size, only one glass, two hands total. No labels, text, frame numbers, grid, backdrop, stars or extra characters.
