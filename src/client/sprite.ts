@@ -1,7 +1,7 @@
 import type { MascotDraw } from '../engine/script'
 import type { Phase } from '../engine/library'
 import {cellWidth} from '../engine/text'
-import {playbackAction,frameAt,type MotionClock} from './animation'
+import {playbackAction,frameAt,ATLAS_COLUMNS,type Action,type MotionClock} from './animation'
 import type {PixelPreset} from '../presets'
 import {paintPixelScene} from './pixel-scenes'
 import {packFrameAt,resolvePackClip,type PackResources,type LoadedScene} from './resource-pack'
@@ -22,9 +22,9 @@ function paintPackLayer(g:CanvasRenderingContext2D,scene:LoadedScene,image:HTMLI
 export type Pose='idle'|'think'|'read'|'type'|'walk-left-0'|'walk-left-1'|'walk-right-0'|'walk-right-1'|'search'|'check'|'success'|'failed'
 export const POSES:Pose[]=['idle','think','read','type','walk-left-0','walk-left-1','walk-right-0','walk-right-1','search','check','success','failed']
 export type Crop={x:number;y:number;w:number;h:number}
-export type RegisteredFrame={crop:Crop;anchorX:number;anchorY:number}
+export type RegisteredFrame={crop:Crop;anchorX:number;anchorY:number;mirror?:boolean}
 export type AnimationSheet={image:HTMLImageElement;frames:RegisteredFrame[];referenceHeight:number}
-export type AnimationSprites={active:AnimationSheet;work:AnimationSheet;walking?:AnimationSheet}
+export type AnimationSprites=Record<Action,AnimationSheet>
 /** Read each atlas cell's alpha bounds; source pixels stay unchanged. */
 export function atlasBounds(image:HTMLImageElement):Crop[] {
   const c=document.createElement('canvas');c.width=image.width;c.height=image.height
@@ -34,8 +34,8 @@ export function atlasBounds(image:HTMLImageElement):Crop[] {
 }
 /** Generated atlases have slightly uneven gutters; find them before cropping. */
 function atlasGrid(pixels:Uint8ClampedArray,width:number,height:number,columns=4,rowCount=3){
-  const columnsInk=new Uint32Array(width),rows=new Uint32Array(height)
-  for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(pixels[(y*width+x)*4+3]!>80){columnsInk[x]++;rows[y]++}
+  const rows=new Uint32Array(height)
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(pixels[(y*width+x)*4+3]!>80)rows[y]++
   const seam=(counts:Uint32Array,expected:number,radius:number)=>{
     let best=Math.round(expected),score=Infinity,distance=Infinity
     for(let i=Math.max(1,Math.floor(expected-radius));i<=Math.min(counts.length-1,Math.ceil(expected+radius));i++){
@@ -43,9 +43,15 @@ function atlasGrid(pixels:Uint8ClampedArray,width:number,height:number,columns=4
     }
     return best
   }
-  const xs=[0,...Array.from({length:columns-1},(_,i)=>seam(columnsInk,width*(i+1)/columns,width*.03)),width],ys=[0,...Array.from({length:rowCount-1},(_,i)=>seam(rows,height*(i+1)/rowCount,height*.04)),height]
+  const ys=[0,...Array.from({length:rowCount-1},(_,i)=>seam(rows,height*(i+1)/rowCount,height*.04)),height]
+  // Opposite facings and wide prone poses have different horizontal gutters.
+  const xs=Array.from({length:rowCount},(_,row)=>{
+    const ink=new Uint32Array(width)
+    for(let y=ys[row]!;y<ys[row+1]!;y++)for(let x=0;x<width;x++)if(pixels[(y*width+x)*4+3]!>80)ink[x]++
+    return [0,...Array.from({length:columns-1},(_,i)=>seam(ink,width*(i+1)/columns,width*.03)),width]
+  })
   const bounds=Array.from({length:columns*rowCount},(_,i)=>{
-    const x0=xs[i%columns]!,x1=xs[i%columns+1]!,y0=ys[Math.floor(i/columns)]!,y1=ys[Math.floor(i/columns)+1]!
+    const row=Math.floor(i/columns),x0=xs[row]![i%columns]!,x1=xs[row]![i%columns+1]!,y0=ys[row]!,y1=ys[row+1]!
     let left=x1,top=y1,right=x0,bottom=y0
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(pixels[(y*width+x)*4+3]!>80){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y)}
     if(right<=left||bottom<=top)throw new Error(`Empty atlas cell ${i}`)
@@ -55,18 +61,48 @@ function atlasGrid(pixels:Uint8ClampedArray,width:number,height:number,columns=4
 }
 export function atlasBoundsFromPixels(pixels:Uint8ClampedArray,width:number,height:number):Crop[]{return atlasGrid(pixels,width,height).bounds}
 const median=(values:number[])=>{const sorted=[...values].sort((a,b)=>a-b);return (sorted[Math.floor((sorted.length-1)/2)]!+sorted[Math.floor(sorted.length/2)]!)/2}
-/** Shared row baselines keep a moving hand/page from shifting the whole sprite. */
-export function animationBoundsFromPixels(pixels:Uint8ClampedArray,width:number,height:number,standingRows:readonly number[],rowCount=4):Omit<AnimationSheet,'image'>{
-  const {bounds,xs,ys}=atlasGrid(pixels,width,height,4,rowCount)
-  const baselines=Array.from({length:rowCount},(_,row)=>median(bounds.slice(row*4,row*4+4).map(c=>c.y+c.h-ys[row]!)))
-  const frames=bounds.map((crop,i)=>({crop,anchorX:(xs[i%4]!+xs[i%4+1]!)/2-crop.x,anchorY:ys[Math.floor(i/4)]!+baselines[Math.floor(i/4)]!-crop.y}))
-  const referenceHeight=median(standingRows.flatMap(row=>bounds.slice(row*4,row*4+4).map(c=>c.h)))
+/** Register the actual contact point; uneven row padding must not lift the feet. */
+export function animationBoundsFromPixels(pixels:Uint8ClampedArray,width:number,height:number,standingRows:readonly number[],rowCount=2,columns=ATLAS_COLUMNS):Omit<AnimationSheet,'image'>{
+  const {bounds}=atlasGrid(pixels,width,height,columns,rowCount)
+  // Cropping follows real gutters; positioning follows the fixed cell centers.
+  const frames=bounds.map((crop,i)=>({crop,anchorX:(i%columns+.5)*width/columns-crop.x,anchorY:crop.h}))
+  const referenceHeight=median(standingRows.flatMap(row=>bounds.slice(row*columns,(row+1)*columns).map(c=>c.h)))
   return {frames,referenceHeight}
 }
-export function animationSheet(image:HTMLImageElement,standingRows:readonly number[],rowCount=4):AnimationSheet {
+export function animationSheet(image:HTMLImageElement,standingRows:readonly number[],rowCount=2,columns=ATLAS_COLUMNS):AnimationSheet {
   const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height
   const g=canvas.getContext('2d');if(!g)throw new Error('Canvas is unavailable');g.drawImage(image,0,0)
-  return {image,...animationBoundsFromPixels(g.getImageData(0,0,image.width,image.height).data,image.width,image.height,standingRows,rowCount)}
+  return {image,...animationBoundsFromPixels(g.getImageData(0,0,image.width,image.height).data,image.width,image.height,standingRows,rowCount,columns)}
+}
+/** A 2D reverse direction preserves the same eight phases and only mirrors x. */
+export function mirrorSheet(sheet:AnimationSheet):AnimationSheet {
+  return {...sheet,frames:sheet.frames.map(frame=>({...frame,mirror:!frame.mirror}))}
+}
+/** Each action owns eight source frames; prone poses keep the standing pixel scale. */
+export function actionSheets(images:Record<Action,HTMLImageElement>):AnimationSprites {
+  const sheets=Object.fromEntries(Object.entries(images).filter(([action])=>action!=='walk-right').map(([action,image])=>[action,animationSheet(image,[0,1])])) as AnimationSprites
+  const referenceRatio=sheets.idle.referenceHeight/(images.idle.height/2)
+  for(const [action,sheet] of Object.entries(sheets))if(!action.startsWith('walk-'))sheet.referenceHeight=images[action as Action].height/2*referenceRatio
+  sheets['walk-right']=mirrorSheet(sheets['walk-left'])
+  // The final reaction was drawn from the opposite facing; keep bow/tail orientation continuous.
+  if(sheets.success)sheets.success.frames[7]!.mirror=true
+  return sheets
+}
+/** The final two celebration frames develop one burst from ignition to bloom. */
+export function paintCelebration(g:CanvasRenderingContext2D,center:number,top:number,bodyHeight:number,frame:6|7):void {
+  const unit=Math.max(1,Math.round(bodyHeight/40)),radius=bodyHeight*(frame===6?.055:.15)
+  const colors=['#ffd76b','#72d5ff','#ff9b76']
+  for(let burst=0;burst<3;burst++){
+    const cx=center+bodyHeight*[-.52,.5,.38][burst]!,cy=Math.max(radius+unit,top+bodyHeight*[.22,.08,.42][burst]!)
+    g.fillStyle=colors[burst]!
+    for(let ray=0;ray<(frame===6?4:8);ray++){
+      const angle=ray*Math.PI*2/(frame===6?4:8)+burst*.3
+      for(const distance of frame===6?[0,radius*.6]:[radius*.55,radius]){
+        const x=Math.round((cx+Math.cos(angle)*distance)/unit)*unit,y=Math.round((cy+Math.sin(angle)*distance)/unit)*unit
+        if(x>=0&&y>=0&&x+unit<=g.canvas.width&&y+unit<=g.canvas.height)g.fillRect(x,y,unit,unit)
+      }
+    }
+  }
 }
 /** One fixed pose is chosen from activity and upstream compatibility options. */
 export function poseFor(m:MascotDraw,phase:Phase,t:number,outcome:string):Pose {
@@ -85,6 +121,7 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
   if((!frame.preset&&!resources?.scene&&clock?.working!==false)||(resources?.character&&!resources.character.spec.actions['walk-left']&&!resources.character.spec.actions['walk-right']))travel=undefined
   const cw=g.canvas.width/frame.cols,ch=g.canvas.height/frame.rows,clear=0x01000000
   g.clearRect(0,0,g.canvas.width,g.canvas.height);g.imageSmoothingEnabled=false
+  if(g.canvas.dataset)delete g.canvas.dataset.celebration
   const color=(v:number)=>`#${(v&0xffffff).toString(16).padStart(6,'0')}`
   g.font=`${ch}px "Cascadia Mono",Consolas,"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",monospace`;g.textBaseline='top'
   const mascots=frame.mascots.length?frame.mascots:[{x:frame.cols/2-7,py:frame.rows*2-10,look:{pose:'stand',stride:-1,facing:0,scale:1,arms:{left:'down',right:'down'}}} as MascotDraw]
@@ -145,18 +182,17 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
       const action=actionForSprite(m)
       const walking=action==='walk-left'||action==='walk-right'
       const index=frameAt(action,walking&&travel?travel.seconds:action==='success'&&outcome!=='success'?time%1.39:time)
-      const row={idle:0,think:1,search:2,check:3,read:0,type:1,success:2,failed:3}[action as Exclude<typeof action,'walk-left'|'walk-right'>]
-      const sheet=walking&&animations.walking?animations.walking:action==='read'||action==='type'||action==='success'||action==='failed'?animations.work:animations.active
-      const registered=walking?(animations.walking?sheet.frames[(action==='walk-left'?0:4)+index]:undefined):sheet.frames[row*4+index]!
-      const crop=registered?.crop??crops[(action==='walk-left'?4:6)+index%2]!
+      const sheet=animations[action],registered=sheet.frames[index]!,crop=registered.crop
       if(m===mascots[0]&&g.canvas.dataset){g.canvas.dataset.action=action;g.canvas.dataset.frame=String(index);g.canvas.dataset.motionTime=String(time);g.canvas.dataset.sceneTime=String(frame.t);g.canvas.dataset.playing=String(clock?.playing??true);g.canvas.dataset.walking=String(travel?.walking??false)}
-      const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(heroMaxHeight,12*scale*ch/2)*(localScene?.spec.scale??1)/(walking&&!registered?crops[0]!.h:sheet.referenceHeight)
-      const width=unit*crop.w,height=unit*crop.h,anchorX=registered?.anchorX??crop.w/2,anchorY=registered?.anchorY??crop.h
+      const scale=Math.max(.3,Math.min(2,m.look.scale)),unit=Math.min(heroMaxHeight,12*scale*ch/2)*(localScene?.spec.scale??1)/sheet.referenceHeight
+      const width=unit*crop.w,height=unit*crop.h,anchorX=registered.mirror?crop.w-registered.anchorX:registered.anchorX,anchorY=registered.anchorY
       const foot=layout?.footY??Math.min(g.canvas.height-2,Math.max(height,(m.py+8*scale)*ch/2))
       const x=Math.max(0,Math.min(g.canvas.width-width,(layout?.centerX??actorCenter??(m.x+7*scale)*cw)-anchorX*unit))
-      const hop=action==='success'?-Math.sin(Math.PI*Math.max(0,Math.min(1,(time-.2)/.75)))*8*scale:walking?Math.sin((travel?.seconds??time)*20)*.7:action==='idle'?Math.sin(time*2)*1:0
+      const hop=action==='success'?-Math.sin(Math.PI*Math.max(0,Math.min(1,(time-.11)/.63)))*8*scale:action==='idle'?Math.sin(time*2)*1:0
       const y=Math.max(0,Math.min(g.canvas.height-height,foot-anchorY*unit+hop))
-      g.drawImage(walking&&!registered?image:sheet.image,crop.x,crop.y,crop.w,crop.h,Math.round(x),Math.round(y),Math.round(width),Math.round(height))
+      if(registered.mirror){g.save();g.translate(Math.round(x+width),Math.round(y));g.scale(-1,1);g.drawImage(sheet.image,crop.x,crop.y,crop.w,crop.h,0,0,Math.round(width),Math.round(height));g.restore()}
+      else g.drawImage(sheet.image,crop.x,crop.y,crop.w,crop.h,Math.round(x),Math.round(y),Math.round(width),Math.round(height))
+      if(action==='success'&&index>=6){paintCelebration(g,x+anchorX*unit,y,unit*sheet.referenceHeight,index as 6|7);if(g.canvas.dataset)g.canvas.dataset.celebration=index===6?'ignition':'bloom'}
       if(m===mascots[0]&&g.canvas.dataset){g.canvas.dataset.characterX=String(Math.round(x));g.canvas.dataset.characterY=String(Math.round(y))}
       continue
     }
