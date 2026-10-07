@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from 'react'
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react'
 import idleUrl from '../../assets/animations/idle.png'
 import thinkUrl from '../../assets/animations/think.png'
 import readUrl from '../../assets/animations/read.png'
@@ -20,6 +20,7 @@ import {fallbackCaption} from '../director-status'
 import {PIXEL_THEMES,GAME_THEMES,THEME_NAMES,isPixelTheme,isGameTheme} from '../presets'
 import {decodePreferences,DEFAULT_PREFERENCES,type Preferences} from './preferences'
 import {useResourcePacks} from './use-resource-packs'
+import {builtinArchiveFromResponse} from './builtin-packs'
 import {ResourcePanel} from './ResourcePanel'
 import {useSceneSchedule} from './scene-schedule'
 
@@ -49,7 +50,12 @@ export function Strip({sessionId,running,events,call,t,demo=false,walkPreview}:P
   const savedSource=useRef(hasSavedSource())
   const settings=(change:Partial<Preferences>)=>{if(change.source){savedSource.current=true;lastInteresting.current='';setStatus(previous=>previous.startsWith(t('fallback'))?'':previous)}setPrefs(previous=>({...previous,...change}))}
   const [resourcesOpen,setResourcesOpen]=useState(false)
-  const library=useResourcePacks(prefs,settings),resourcesRef=useRef(library.resources);resourcesRef.current=library.resources
+  const readArchive=useCallback(async(id:string)=>{
+    const response=await call('toons/builtin-pack',{id})
+    if(!response.ok)throw new Error('内置角色读取失败')
+    return builtinArchiveFromResponse(id,response.value)
+  },[call])
+  const library=useResourcePacks(prefs,settings,readArchive),resourcesRef=useRef(library.resources);resourcesRef.current=library.resources
   useEffect(()=>redraw.current(),[library.resources])
   useEffect(()=>{try{localStorage.setItem('dsh-toons:v1',JSON.stringify(prefs))}catch{/* Storage may be unavailable in an embedded webview. */}},[prefs])
   useEffect(()=>{const onVisibility=()=>setVisible(!document.hidden);document.addEventListener('visibilitychange',onVisibility);return()=>document.removeEventListener('visibilitychange',onVisibility)},[])

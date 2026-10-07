@@ -4,6 +4,7 @@ import {Strip,type Rpc} from './client/Strip'
 import {zh,type ToonsKey} from './client/locales'
 import {activityFrom,type ActivityEvent} from './activity'
 import {sceneFromPlan,parseScenePlan} from './scene-plan'
+import {previewBuiltinArchive} from './preview-pack-assets'
 const t=(key:ToonsKey)=>zh[key]
 const tools=[['idle','待机',''],['thinking','思考',''],['reading','阅读','read'],['editing','敲键盘','edit'],['walk-left','向左走',''],['walk-right','向右走',''],['searching','搜索','grep'],['testing','测试','bash'],['building','构建','bash'],['git','Git','bash'],['web','资料检索','web'],['agents','协作','subagent'],['success','任务完成',''],['failed','遇到问题','read']] as const
 function Preview(){
@@ -18,9 +19,13 @@ function Preview(){
     if(phase==='success')list.push({type:'turn/end',seq:2,data:{reason:{kind:'completed'}}})
     return list
   },[phase,revision])
-  const call=useMemo<Rpc>(()=>async(endpoint)=>{
+  const call=useMemo<Rpc>(()=>async(endpoint,payload)=>{
     if(endpoint==='toons/config')return {ok:true,value:{enabled:true,fps:20,intervalMs:60000}}
     if(endpoint==='toons/cancel')return {ok:true,value:{status:'canceled'}}
+    if(endpoint==='toons/builtin-pack'){
+      try{return {ok:true,value:previewBuiltinArchive((payload as {id?:unknown})?.id)}}
+      catch{return {ok:false,error:{message:'Builtin character unavailable'}}}
+    }
     const activity=activityFrom(events,true),action=activity.phase==='reading'?'read':activity.phase==='editing'?'type':activity.phase==='testing'?'check':'think'
     const plan=parseScenePlan({concept:'离线导演编排预览',theme:action==='read'?'library':'workshop',mood:revision%2?'day':'dusk',action,props:[{kind:'rice-bowl',slot:'left'},{kind:action==='read'?'book':'terminal',slot:'right'}],effects:action==='read'?['fireflies']:['steam','scan'],say:'离线预览：饭碗先替本鲸保管。'})
     return {ok:true,value:{status:'ready',scene:sceneFromPlan(plan,activity.phase)}}

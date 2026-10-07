@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <strong>v0.1.16</strong> · Harness <strong>0.2.0-rc.2</strong> · <a href="LICENSE">MIT</a>
+  <strong>v0.1.24</strong> · Harness <strong>0.2.0-rc.2</strong> · <a href="LICENSE">MIT</a>
 </p>
 
 <p align="center">
@@ -19,7 +19,8 @@
   <a href="#当前功能">功能</a> ·
   <a href="#安装">安装</a> ·
   <a href="#开发与动作预览">开发与预览</a> ·
-  <a href="docs/local-resource-packs.md">自定义角色与场景</a>
+  <a href="docs/local-resource-packs.md">自定义角色与场景</a> ·
+  <a href="design/character-walks.md">角色与行走素材</a>
 </p>
 
 ## 动画一览
@@ -44,15 +45,24 @@
 <summary>看看她左右走路的样子</summary>
 
 <p align="center">
-  <img src="design/screenshots/walk-cycle-v0114.png" width="900" alt="鲸鱼娘在蒙德风车广场中行走的动作预览" />
+  <img src="design/screenshots/character-walks-v0124.gif" width="900" alt="Kimi、Gemini、Claude、Qwen、Grok、GLM 六个附加角色的八帧小步行走预览" />
 </p>
 
-左右各 8 帧行走动画。任务完成后，她会欢呼、落地，再看两帧逐渐展开的烟花，之后走走停停；本地闲逛不增加模型请求。
+默认鲸鱼娘 Deep seek 使用偏正面的八帧小步行走；Kimi、Gemini、Claude、Qwen、Grok 和 GLM 可在「本地资源」中直接选择。六个附加角色的腿、脚踝与鞋连续移动，完整裙摆和配饰保留在前景。任务完成后播放庆祝，再走走停停；本地闲逛不增加模型请求。
+
+<p align="center">
+  <img src="design/screenshots/character-layers-v0124.gif" width="900" alt="Grok 的完整服装前景、连续腿脚后景与最终合成效果示例" />
+</p>
+
+素材结构、角色 ID 和重建命令见 [角色与行走素材](design/character-walks.md)。
 
 </details>
 
 ## 当前功能
 
+- 七个角色随插件安装：默认 Deep seek，以及 Kimi、Gemini、Claude、Qwen、Grok、GLM。六个附加角色首次选择时从当前 Harness Host 读取，随后在本次客户端运行期间缓存；无需外网或模型调用，每个角色支持十种八帧动作。角色与场景分别选择，自定义资源包继续独立保存。
+- 行走与待机保持同一人物比例：Deep seek 采用偏正面小步步态，六个附加角色从各自待机图提取原始腿、脚踝与鞋连续变形，完整服装遮住腿根，头发、衣裙与配饰一起轻微起伏。左右方向镜像复用，原有动作时长与其他八种动作保留。
+- 角色按实际可见图像适配画布：透明格子的留白不会把鞋子抬离地面，高举手等较高的自定义姿势也能完整显示；加载资源包时缓存可见边界，播放时复用。
 - 0.1.16 内置动作全部升级为连续 8 帧，重做 2D 行走轮廓，修正脚底空缺，并在庆祝最后两帧加入烟花。
 - 0.1.15 动态导演改为编排精细素材：[一次真实模型生成的宽窄画布效果](design/screenshots/model-director-v0115.png)。
 - 原生插槽 `conversation.input.dock`，动画位于聊天输入框上方。
@@ -77,14 +87,14 @@
 
 ```powershell
 dsh --version
-dsh plugin --profile web add "E:\heishou\DHS Pixel Toons\dist\dsh-toons-0.1.16.tgz"
+dsh plugin --profile web add .\dist\dsh-toons-0.1.24.tgz
 dsh --profile web
 ```
 
-插件包包含 bundle patch，安装后由 profile 加载。已有 Web 服务需重启。桌面端可通过内置插件管理添加相同本地包；此设备也可使用安装自带的桌面命令行入口：
+在项目根目录运行以上命令。插件包包含 bundle patch，安装后由 profile 加载。已有 Web 服务需重启。桌面端可通过内置插件管理添加相同本地包；也可使用桌面安装目录自带的 `dsh.cmd` 命令行入口，将下例的 `<桌面安装目录>` 替换为实际目录：
 
 ```powershell
-& 'D:\DSH\resources\runtime\cli\bin\dsh.cmd' plugin --profile desktop add 'E:\heishou\DHS Pixel Toons\dist\dsh-toons-0.1.16.tgz'
+& '<桌面安装目录>\resources\runtime\cli\bin\dsh.cmd' plugin --profile desktop add .\dist\dsh-toons-0.1.24.tgz
 ```
 
 桌面更新后需要退出并重新打开应用。已确认 Desktop 原生挂载与启用状态，并在实际配置的 DeepSeek 路由验证动态场景生成。
@@ -96,7 +106,6 @@ dsh --profile web
 ## 开发与动作预览
 
 ```powershell
-Set-Location -LiteralPath "E:\heishou\DHS Pixel Toons"
 npm ci
 npm run typecheck
 npm test
@@ -104,13 +113,17 @@ npm run build
 npm run preview
 ```
 
+以上开发命令均在项目根目录运行。六个附加角色的行走素材可用 `node scripts/compose-character-walks.mjs` 重建，默认将预览与校验记录写入 `work/character-walks/`；审定后追加 `--write` 更新正式 PNG 与 ZIP 中的行走素材。可按角色 ID 只处理指定角色，详见 [制作说明](design/character-walks.md)。
+
 Windows 自动升级的隔离集成测试：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\desktop-updater.test.ps1
 ```
 
-动作预览地址为 `http://127.0.0.1:3088/`。它复用插件的组件、Worker、解释器和角色素材，支持切换动作、暂停、收起／展开和主题；动态选项使用模拟导演编排展示背景、道具、特效和气泡，不调用模型。
+动作预览地址为 `http://127.0.0.1:3088/`。它复用插件的组件、Worker、解释器和角色素材，支持选择内置角色、切换动作、暂停、收起／展开和主题；动态选项使用模拟导演编排展示背景、道具、特效和气泡，不调用模型。
+
+预览页使用独立的本地 ZIP 素材模块，无需连接 Harness Host。正式插件通过当前 Host 按选择读取已安装的角色归档，客户端包不内嵌六份 ZIP；尚未加载的角色需要 Host 连接才能首次读取。
 
 安装包重新生成：
 
@@ -121,8 +134,8 @@ npm pack --pack-destination dist
 ## 隔离的 Harness 联调
 
 ```powershell
-$env:DSH_HOME = "E:\heishou\DHS Pixel Toons\work\harness-home"
-npm exec -- dsh --profile web --patch "E:\heishou\DHS Pixel Toons\dev.patch.yml" --patch "E:\heishou\DHS Pixel Toons\tests\fixtures\offline.patch.yml" --no-open --port 3087
+$env:DSH_HOME = Join-Path (Get-Location) "work/harness-home"
+npm exec -- dsh --profile web --patch .\dev.patch.yml --patch .\tests\fixtures\offline.patch.yml --no-open --port 3087
 ```
 
 `offline.patch.yml` 只用于测试：将默认模型设为无网络的模拟适配器。模拟适配器流式产生测试文本，也可响应动画导演请求；界面中的模拟 token 数不代表真实费用。测试文件不进入发布包。这个命令使用独立 home，不修改用户现有 Harness profile。
@@ -151,12 +164,14 @@ npm exec -- dsh --profile web --patch "E:\heishou\DHS Pixel Toons\dev.patch.yml"
 
 ## 角色素材与当前边界
 
-内置动作表位于 `assets/animations/`，每个动作均为 4 列 × 2 行的一套连续 8 帧。左右行走共用一张图集并水平镜像播放，共十种动作、80 个播放帧：
+默认 Deep seek 的动作表位于 `assets/animations/`，每个动作均为 4 列 × 2 行的一套连续 8 帧。左右行走共用一张图集并水平镜像播放，共十种动作、80 个播放帧：
 
 - `idle.png`、`think.png`、`search.png`、`check.png`：一次呼吸／眨眼、抬指思考、观察扫描、落笔检查的完整过程。
 - `read.png`、`type.png`、`success.png`、`failed.png`：趴着完成一次翻页、左右手交替敲键盘、准备到欢呼再落地、失落到缓和。庆祝的第 7 帧点亮火花，第 8 帧展开烟花。
-- `walk.png`：一套 8 帧，75 毫秒一帧，向右走时水平镜像同一序列；将一次 2D 可见迈步拆为触地、屈膝缓冲、后脚离地、抬脚内收、过髋高抬、向前摆脚、伸腿下落和接近落脚。腿脚轮廓必须逐帧不同，不依靠左右腿换色来区分。裁切按每行实际空隙处理，落脚按每帧真实脚底登记，避免尾巴被截断或脚底悬空。
+- `walk.png`：偏正面三分之四视角的小步行走，一套 8 帧，75 毫秒一帧，向右走时水平镜像同一序列。双眼和围裙正面保持可见，左腿高光随迈步、支撑和收脚移动；头发、衣服、手臂与鲸尾统一轻微起伏，鞋头保留接近待机的圆厚体积，人物中心与落脚线稳定。
 - `assets/deepseek-girl-poses.png` 保留原素材作兼容回退。
+
+六个附加角色位于 `assets/characters/<角色 ID>/`，包含 `manifest.json`、待机与工作／反应图集及 `walk-left.png`；每个角色支持十种八帧动作，行走每帧 100 毫秒，向右使用同一图集的镜像。完整 ZIP 位于 `examples/character-packs/`，可作为可导入资源包使用。界面内置选择使用 `builtin-` 前缀，与用户自行导入的同名角色分开；显示名称变化不改变角色 ID 或已有选择。当前行走素材与制作流程见 [角色与行走素材](design/character-walks.md)。
 
 素材使用内置 image_gen 生成，采用最近邻缩放。每组动作共用根位置与脚底基线，避免手、书页或尾巴变化时整个人随裁切漂移；趴姿采用站姿的像素比例，保持更矮更宽。动作节奏按用途设置：敲键盘约每 50 毫秒切帧，阅读先停留再翻页，思考与检查较慢。读取动作优先于旧场景的走路指令；其他场景保留移动、朝向及举手等动作意图。
 

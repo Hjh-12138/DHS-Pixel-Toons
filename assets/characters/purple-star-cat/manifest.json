@@ -1,0 +1,792 @@
+{
+  "format": "dsh-toons-pack",
+  "version": 1,
+  "id": "purple-star-cat",
+  "name": "Gemini",
+  "description": "八种原有动作与整体协调版八帧走路合并；走路保留10帧/秒节奏，向右走复用镜像。",
+  "character": {
+    "atlases": {
+      "core": "core.png",
+      "work": "work.png",
+      "reaction": "reaction.png",
+      "walk": "walk-left.png"
+    },
+    "referenceHeight": 160,
+    "actions": {
+      "idle": {
+        "frames": [
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 1500
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 200
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 190
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 60
+          },
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 60
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 120
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 190
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 260
+          }
+        ],
+        "loop": true,
+        "stance": "standing"
+      },
+      "think": {
+        "frames": [
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 250
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 250
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          }
+        ],
+        "loop": true,
+        "stance": "standing"
+      },
+      "search": {
+        "frames": [
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 0,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 256,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 512,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          },
+          {
+            "atlas": "core",
+            "x": 768,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 150
+          }
+        ],
+        "loop": true,
+        "stance": "standing"
+      },
+      "read": {
+        "frames": [
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 1200
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 200
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          }
+        ],
+        "loop": true,
+        "stance": "prone"
+      },
+      "type": {
+        "frames": [
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 50
+          }
+        ],
+        "loop": true,
+        "stance": "prone"
+      },
+      "check": {
+        "frames": [
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 125
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 1024,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 125
+          },
+          {
+            "atlas": "work",
+            "x": 0,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "work",
+            "x": 256,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "work",
+            "x": 512,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "work",
+            "x": 768,
+            "y": 1280,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          }
+        ],
+        "loop": true,
+        "stance": "standing"
+      },
+      "success": {
+        "frames": [
+          {
+            "atlas": "reaction",
+            "x": 0,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 110
+          },
+          {
+            "atlas": "reaction",
+            "x": 256,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 110
+          },
+          {
+            "atlas": "reaction",
+            "x": 512,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 90
+          },
+          {
+            "atlas": "reaction",
+            "x": 768,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 90
+          },
+          {
+            "atlas": "reaction",
+            "x": 0,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 170
+          },
+          {
+            "atlas": "reaction",
+            "x": 256,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 170
+          },
+          {
+            "atlas": "reaction",
+            "x": 512,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          },
+          {
+            "atlas": "reaction",
+            "x": 768,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 325
+          }
+        ],
+        "loop": false,
+        "stance": "standing"
+      },
+      "failed": {
+        "frames": [
+          {
+            "atlas": "reaction",
+            "x": 0,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "reaction",
+            "x": 256,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "reaction",
+            "x": 512,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "reaction",
+            "x": 768,
+            "y": 512,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 175
+          },
+          {
+            "atlas": "reaction",
+            "x": 0,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 225
+          },
+          {
+            "atlas": "reaction",
+            "x": 256,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 225
+          },
+          {
+            "atlas": "reaction",
+            "x": 512,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 300
+          },
+          {
+            "atlas": "reaction",
+            "x": 768,
+            "y": 768,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 300
+          }
+        ],
+        "loop": false,
+        "stance": "standing"
+      },
+      "walk-left": {
+        "loop": true,
+        "stance": "standing",
+        "frames": [
+          {
+            "atlas": "walk",
+            "x": 0,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 256,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 512,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 768,
+            "y": 0,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 0,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 256,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 512,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          },
+          {
+            "atlas": "walk",
+            "x": 768,
+            "y": 256,
+            "w": 256,
+            "h": 256,
+            "anchorX": 128,
+            "anchorY": 222,
+            "durationMs": 100
+          }
+        ]
+      }
+    }
+  }
+}
