@@ -1,5 +1,6 @@
 import {strFromU8,unzipSync} from 'fflate'
 import type {Action} from './animation'
+import {assertPackFrameScanBudget,scanPackFrameBounds,type FrameInkBounds} from './pack-frame-bounds'
 
 export const PACK_LIMITS={archive:20*1024*1024,expanded:32*1024*1024,image:8*1024*1024,manifest:128*1024,entries:32,pixels:16*1024*1024}
 export const ACTIONS:readonly Action[]=['idle','think','read','type','search','check','success','failed','walk-left','walk-right']
@@ -9,7 +10,7 @@ export type PackCharacter={atlases:Record<string,string>;referenceHeight:number;
 export type PackScene={background:string;foreground?:string;fit:'cover'|'contain'|'stretch';color:string;centerX:number;footY:number;scale:number}
 export type PackManifest={format:'dsh-toons-pack';version:1;id:string;name:string;author?:string;description?:string;character?:PackCharacter;scene?:PackScene}
 export type LocalPack={id:string;manifest:PackManifest;assets:Record<string,Blob>;importedAt:number}
-export type LoadedCharacter={id:string;spec:PackCharacter;images:Record<string,HTMLImageElement>}
+export type LoadedCharacter={id:string;spec:PackCharacter;images:Record<string,HTMLImageElement>;bounds?:ReadonlyMap<PackFrame,FrameInkBounds>}
 export type LoadedScene={id:string;spec:PackScene;background:HTMLImageElement;foreground?:HTMLImageElement}
 export type PackResources={character?:LoadedCharacter;scene?:LoadedScene}
 
@@ -184,6 +185,7 @@ export function checkFrameBounds(character:PackCharacter,images:Record<string,{w
   }
 }
 export async function loadPackResources(pack:LocalPack):Promise<PackResources>{
+  if(pack.manifest.character)assertPackFrameScanBudget(pack.manifest.character)
   const images:Record<string,HTMLImageElement>=Object.create(null)
   await Promise.all(referencedAssets(pack.manifest).map(async path=>{
     const blob=pack.assets[path]
@@ -201,7 +203,18 @@ export async function loadPackResources(pack:LocalPack):Promise<PackResources>{
   if(pack.manifest.character){
     const spec=pack.manifest.character,atlases:Record<string,HTMLImageElement>=Object.create(null)
     for(const [key,path] of Object.entries(spec.atlases))atlases[key]=images[path]!
-    checkFrameBounds(spec,atlases);result.character={id:pack.id,spec,images:atlases}
+    checkFrameBounds(spec,atlases)
+    const pixels:Record<string,{pixels:Uint8ClampedArray;width:number;height:number}>=Object.create(null)
+    const decoded=new Map<HTMLImageElement,{pixels:Uint8ClampedArray;width:number;height:number}>()
+    for(const [key,image] of Object.entries(atlases)){
+      const cached=decoded.get(image);if(cached){pixels[key]=cached;continue}
+      const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight
+      const context=canvas.getContext('2d');if(!context)throw new Error('无法读取角色图片')
+      context.drawImage(image,0,0)
+      pixels[key]={pixels:context.getImageData(0,0,canvas.width,canvas.height).data,width:canvas.width,height:canvas.height}
+      decoded.set(image,pixels[key]!)
+    }
+    result.character={id:pack.id,spec,images:atlases,bounds:scanPackFrameBounds(spec,pixels)}
   }
   if(pack.manifest.scene){
     const spec=pack.manifest.scene,background=images[spec.background]!,foreground=spec.foreground?images[spec.foreground]:undefined

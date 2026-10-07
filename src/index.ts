@@ -13,6 +13,7 @@ import { directScene } from './director'
 import {withDirectorReasoning} from './director-routing'
 import {DirectorError,directorFailure} from './director-status'
 import type { SceneSpec } from './scene'
+import {readBuiltinPackArchive} from './builtin-pack-files'
 
 export const name='dsh-toons'
 export const inject=['connection','agents','sessions','llm']
@@ -37,6 +38,10 @@ export function apply(ctx:Context,config:ToonsConfig):void {
     if(endpoint==='toons/config')return {ok:true,value:{enabled:config.enabled,source:config.source,fps:config.fps,intervalMs:config.intervalMs}}
     if(!payload||typeof payload!=='object'||Array.isArray(payload))return fail('Invalid request')
     const p=payload as Record<string,unknown>
+    if(endpoint==='toons/builtin-pack'){
+      try{return {ok:true,value:await readBuiltinPackArchive(p.id)}}
+      catch{return fail('Builtin character unavailable')}
+    }
     if(typeof p.sessionId!=='string'||!p.sessionId||p.sessionId.length>256)return fail('Invalid session id')
     const id=p.sessionId
     if(endpoint==='toons/cancel'){stop(id);return {ok:true,value:{status:'canceled'}}}
@@ -81,7 +86,7 @@ export function apply(ctx:Context,config:ToonsConfig):void {
     }
   }
   // Exact Fetch contributions coexist with the Gateway's single shared interceptor.
-  for(const endpoint of ['toons/config','toons/direct','toons/cancel']){
+  for(const endpoint of ['toons/config','toons/direct','toons/cancel','toons/builtin-pack']){
     ctx.connection.fetch.register({path:`/api/${endpoint}`,methods:['POST'],requestBody:'buffered',fetch:async request=>{
       if(request.headers.get('content-type')?.split(';')[0]?.trim()!=='application/json')return new Response('JSON required',{status:415})
       let raw:unknown;try{raw=await request.json()}catch{return new Response('Invalid JSON',{status:400})}

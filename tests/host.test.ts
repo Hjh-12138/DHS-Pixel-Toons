@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import type {Context} from '@deepseek-ai/cordis'
 import type {GenerateOptions,StreamChunk} from '@deepseek-ai/dsh-llm'
 import {apply,type ToonsConfig} from '../src/index'
+import {readFileSync} from 'node:fs'
+import {readLocalPack} from '../src/client/resource-pack'
 const config:ToonsConfig={enabled:true,source:'ready-made only',fps:20,intervalMs:60000,timeoutMs:5000,maxTokens:1200,provider:'',model:'',stateDirectory:''}
 const raw={concept:'阅读小剧场',theme:'library',mood:'day',action:'read',props:[],effects:[],say:''}
 function harness(stream:(options:GenerateOptions)=>AsyncIterable<StreamChunk>,overrides:Partial<ToonsConfig>={}){
@@ -10,8 +12,32 @@ function harness(stream:(options:GenerateOptions)=>AsyncIterable<StreamChunk>,ov
   const agent={id:'test',status:'running',options:{provider:'fallback',model:'fallback'},session:{requestHeader:()=>({config:{provider:'deepseek',model:'existing',reasoningEffort:'high'}}),snapshotEvents:()=>[{type:'turn/start',seq:0,data:{turn:1}}]},ctx:{llm:{resolveModelInfo:async()=>({reasoning:{efforts:[{id:'off'},{id:'high'}]}}),prepareCall:async(c:Record<string,unknown>)=>{requests++;return {config:c,stream}}}}}
   const ctx={logger:{warn:(message:string)=>warnings.push(message)},on:(name:string,cb:Function)=>hooks.set(name,cb),effect:(cb:Function)=>{const dispose=cb();if(typeof dispose==='function')disposers.push(dispose)},agents:{get:(id:string)=>id==='test'?agent:undefined},connection:{fetch:{register:(route:{path:string;fetch:(request:Request)=>Promise<Response>})=>{routes.set(route.path,route);return()=>{routes.delete(route.path)}}}}} as unknown as Context
   apply(ctx,{...config,...overrides})
-  return {agent,hooks,warnings,dispose:()=>disposers.forEach(d=>d()),requests:()=>requests,call:async(endpoint:string,payload:unknown={sessionId:'test',source:'mix'},signal=new AbortController().signal)=>{const request=new Request(`http://local/api/${endpoint}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'client-request',rpcId:'test',method:endpoint,payload}),signal});const response=await routes.get(`/api/${endpoint}`)!.fetch(request);return (await response.json()).result}}
+  return {agent,hooks,warnings,routes,dispose:()=>disposers.forEach(d=>d()),requests:()=>requests,call:async(endpoint:string,payload:unknown={sessionId:'test',source:'mix'},signal=new AbortController().signal)=>{const request=new Request(`http://local/api/${endpoint}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'client-request',rpcId:'test',method:endpoint,payload}),signal});const response=await routes.get(`/api/${endpoint}`)!.fetch(request);return (await response.json()).result}}
 }
+test('builtin archive RPC serves the six local packaged characters without a session or model call',async()=>{
+  const h=harness(async function*(){throw new Error('must not run')},{enabled:false})
+  const names={'silver-music':'Kimi','purple-star-cat':'Gemini','orange-flower':'Claude','blue-fan':'Qwen','blonde-goth':'Grok','black-beast':'GLM'}
+  for(const [rawId,name]of Object.entries(names)){
+    const id=`builtin-${rawId}`,response=await h.call('toons/builtin-pack',{id})
+    assert.equal(response.ok,true);assert.equal(response.value.id,id)
+    const bytes=Buffer.from(response.value.archive,'base64')
+    assert.deepEqual(bytes,readFileSync(new URL(`../examples/character-packs/${rawId}.toons.zip`,import.meta.url)))
+    const pack=await readLocalPack(new Blob([bytes]));assert.equal(pack.id,rawId);assert.equal(pack.manifest.name,name)
+  }
+  assert.equal(h.requests(),0);assert.deepEqual(h.warnings,[]);h.dispose()
+})
+test('builtin archive RPC rejects unknown IDs, traversal and invalid envelopes without exposing paths',async()=>{
+  const h=harness(async function*(){throw new Error('must not run')})
+  for(const id of [undefined,null,1,'silver-music','builtin-missing','../silver-music','builtin-../../package.json','builtin-silver-music/../blue-fan','file:///etc/passwd']){
+    const result=await h.call('toons/builtin-pack',{id})
+    assert.deepEqual(result,{ok:false,error:{code:'toons',message:'Builtin character unavailable',details:{}}})
+  }
+  const route=h.routes.get('/api/toons/builtin-pack')!
+  const request=(body:unknown)=>new Request('http://local/api/toons/builtin-pack',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+  assert.equal((await route.fetch(request({id:'builtin-silver-music'}))).status,400)
+  assert.equal((await route.fetch(request({type:'client-request',rpcId:'test',method:'toons/direct',payload:{id:'builtin-silver-music'}}))).status,400)
+  assert.equal(h.requests(),0);h.dispose()
+})
 test('host uses existing model routing, accounts cached tokens and throttles duplicate requests',async()=>{
   let options:GenerateOptions|undefined
   const h=harness(async function*(o){options=o;yield {type:'text-delta',index:0,text:JSON.stringify(raw)};yield {type:'usage',usage:{inputTokens:10,outputTokens:20,cacheReadTokens:5}};yield {type:'finish',reason:{kind:'stop'}}})

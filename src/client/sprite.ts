@@ -169,10 +169,16 @@ export function paint(g:CanvasRenderingContext2D,frame:{cells:Uint32Array;cols:n
       const action=actionForSprite(m),resolved=resolvePackClip(localCharacter.spec,action),clip=resolved.clip,f=packFrameAt(clip,travel?.walking?travel.seconds:time)
       const scale=Math.max(.3,Math.min(2,m.look.scale))*(localScene?.spec.scale??1)
       // Fit the whole clip at one pixel scale; moving hands cannot resize the body.
-      const unit=Math.min(heroMaxHeight*scale/localCharacter.spec.referenceHeight,g.canvas.width/Math.max(...clip.frames.map(f=>f.w)),g.canvas.height/Math.max(...clip.frames.map(f=>f.h)))
+      // Fit actual opaque content, preserving tall custom gestures as well
+      // as padded builtin cells. Keep one scale for the entire clip.
+      const ink=(frame:typeof f)=>localCharacter.bounds?.get(frame)??{x:0,y:0,w:frame.w,h:frame.h}
+      const bounds=ink(f),unit=Math.min(heroMaxHeight*scale/localCharacter.spec.referenceHeight,g.canvas.width/Math.max(1,...clip.frames.map(f=>ink(f).w)),g.canvas.height/Math.max(1,...clip.frames.map(f=>ink(f).h)))
       const width=f.w*unit,height=f.h*unit,anchorX=(resolved.mirror?f.w-f.anchorX:f.anchorX)*unit
-      const foot=layout?.footY??Math.min(g.canvas.height-2,Math.max(height,(m.py+8*scale)*ch/2)),center=layout?.centerX??actorCenter??(m.x+7*scale)*cw
-      const x=Math.max(0,Math.min(g.canvas.width-width,center-anchorX)),y=Math.max(0,Math.min(g.canvas.height-height,foot-f.anchorY*unit))
+      const foot=layout?.footY??Math.min(g.canvas.height-2,Math.max(bounds.h*unit,(m.py+8*scale)*ch/2)),center=layout?.centerX??actorCenter??(m.x+7*scale)*cw
+      const left=resolved.mirror?f.w-bounds.x-bounds.w:bounds.x,right=left+bounds.w
+      // Transparent gutters may leave the stage; visible artwork must fit.
+      const x=Math.max(-left*unit,Math.min(g.canvas.width-right*unit,center-anchorX))
+      const y=Math.max(-bounds.y*unit,Math.min(g.canvas.height-(bounds.y+bounds.h)*unit,foot-f.anchorY*unit))
       if(resolved.mirror){g.save();g.translate(Math.round(x+width),Math.round(y));g.scale(-1,1);g.drawImage(localCharacter.images[f.atlas]!,f.x,f.y,f.w,f.h,0,0,Math.round(width),Math.round(height));g.restore()}
       else g.drawImage(localCharacter.images[f.atlas]!,f.x,f.y,f.w,f.h,Math.round(x),Math.round(y),Math.round(width),Math.round(height))
       if(m===mascots[0]&&g.canvas.dataset){g.canvas.dataset.action=action;g.canvas.dataset.clip=resolved.action;g.canvas.dataset.frame=String(clip.frames.indexOf(f));g.canvas.dataset.motionTime=String(time);g.canvas.dataset.sceneTime=String(frame.t);g.canvas.dataset.playing=String(clock?.playing??true);g.canvas.dataset.characterX=String(Math.round(x));g.canvas.dataset.characterY=String(Math.round(y));g.canvas.dataset.walking=String(travel?.walking??false)}

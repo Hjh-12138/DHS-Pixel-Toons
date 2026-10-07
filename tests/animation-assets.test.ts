@@ -9,7 +9,10 @@ for(const action of Object.keys(CLIPS) as Action[]){
  const sheet=animationBoundsFromPixels(pixels,width,height,[0,1]),scale=80/sheet.referenceHeight
  test(`shipped ${action} has eight distinct display frames rather than a repeated four-frame cycle`,()=>{
   assert.equal(sheet.frames.length,8)
-  const images=sheet.frames.map(frame=>thumbnail(png,frame,scale))
+  // Small walking feet occupy little of the whole chibi. Compare their actual
+  // movement region so a large fixed head cannot hide a repeated leg phase.
+  const region=action.startsWith('walk-')?{left:-40,right:25,top:-10,bottom:1}:undefined
+  const images=sheet.frames.map(frame=>thumbnail(png,frame,scale,region))
   for(let a=0;a<8;a++)for(let b=a+1;b<8;b++)assert.ok(difference(images[a]!,images[b]!)>=.025,`${action} frames ${a+1}/${b+1} are duplicates`)
   const heights=sheet.frames.map(frame=>frame.crop.h)
   // Celebration includes an intentional knee bend; the other actions retain their stance.
