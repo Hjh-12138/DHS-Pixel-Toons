@@ -1,0 +1,81 @@
+name: 故障报告 / Bug report
+description: 报告安装、动画、资源包或动态场景问题 / Report an installation or runtime problem
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请填写实际客户端的版本与系统，附上复现步骤和截图，方便排查。
+        Please include the actual client version, OS, reproduction steps and a screenshot.
+        上传前请遮住 API Key、登录 token 和不想公开的路径或对话。
+  - type: input
+    id: harness-version
+    attributes:
+      label: Harness 版本 / Harness version
+      description: 桌面应用中显示的 Harness 版本，或 Web CLI 的 dsh --version 输出。
+      placeholder: "0.2.0-rc.2"
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: DeepSeek Toons 版本 / Plugin version
+      placeholder: "0.1.24"
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: 操作系统与版本 / OS and version
+      description: 目前仅验证 Windows；其他系统请注明具体版本。
+      placeholder: "Windows 11 24H2 / Windows 10 22H2 / macOS ... / Linux ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: 客户端 / Client
+      options:
+        - Desktop / 桌面端
+        - Web / 浏览器
+    validations:
+      required: true
+  - type: dropdown
+    id: installation-method
+    attributes:
+      label: 安装方式 / Installation method
+      options:
+        - Release tgz
+        - Source build / 源码构建
+        - Desktop auto-update / 桌面自动升级
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤 / Steps to reproduce
+      placeholder: |
+        1. 打开哪个会话或设置？
+        2. 选择什么角色、主题或模式？
+        3. 执行什么操作后出现问题？
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: 预期与实际结果 / Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图或录屏 / Screenshots or recording
+      description: 拖入截图或录屏；若无法提供，请说明原因。Drag in evidence, or explain why it is unavailable.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 错误信息与日志（可选）/ Errors and logs (optional)
+      description: 可补充安装命令输出、Harness 启动错误、浏览器版本或动态回退提示。
+      render: text

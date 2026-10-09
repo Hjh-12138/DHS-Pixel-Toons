@@ -11,3 +11,9 @@ DeepSeek Harness packages retain their own licenses and are dependencies of the 
 The new character assets were generated with the built-in image_gen tool using the user's supplied character reference. Prompts and character design records are stored in design/.
 
 Local resource ZIP imports use [fflate](https://github.com/101arrowz/fflate), version 0.8.3, Copyright (c) 2026 Arjun Barrett. MIT License. The full license is included in THIRD_PARTY_LICENSES/fflate.txt. The mint robot and garden example in examples/ is original procedural pixel art created for this project.
+
+## Unofficial fan and tribute content
+
+DeepSeek Toons is an unofficial fan/tribute project. The built-in game themes reference Rhodes Island from Arknights, Honkai: Star Rail, Arknights: Endfield, and Genshin Impact. The built-in mascot names reference DeepSeek, Kimi, Gemini, Claude, Qwen, Grok, and GLM.
+
+This project has no affiliation, partnership, or endorsement from DeepSeek, Moonshot AI, Google, Anthropic, Alibaba, xAI, Zhipu AI, or the companies behind the referenced games. Related names, brands, characters, and other third-party rights belong to their respective rights holders. The MIT license for this project's code does not grant rights to those third-party properties.
